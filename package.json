@@ -1,0 +1,24 @@
+{
+  "name": "demo-template-three.js",
+  "version": "0.0.1",
+  "description": "demo template of three.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/tsumikiinc/gulpfiles.git"
+  },
+  "private": true,
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build"
+  },
+  "engines": {
+    "node": "0.12.x"
+  },
+  "author": "Yoichi Kobayashi",
+  "license": "MIT",
+  "projectConfig": {
+    "PATH": "",
+    "DST": "",
+    "SRC": "src"
+  }
+}
