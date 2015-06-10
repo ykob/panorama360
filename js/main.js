@@ -131,7 +131,7 @@ module.exports = exports();
 },{}],5:[function(require,module,exports){
 var exports = function(){
   var Globe = function() {
-    this.r = 1200;
+    this.r = 2400;
     this.segment = 30;
     this.textureSrc;
     
