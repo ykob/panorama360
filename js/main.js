@@ -30,6 +30,9 @@ var exports = function() {
 module.exports = exports();
 
 },{"./get":4}],2:[function(require,module,exports){
+var Get = require('./get');
+var get = new Get();
+
 var exports = function(){
   var Camera = function() {
     this.width = 0;
@@ -54,13 +57,11 @@ var exports = function(){
   };
   
   Camera.prototype.setPosition = function(rad1, rad2) {
+    var points = get.pointSphere(this.rad1, this.rad2, this.r);
     this.rad1 = rad1;
     this.rad2 = rad2;
-    this.x = Math.cos(this.rad1) * Math.cos(this.rad2) * this.r;
-    this.y = Math.cos(this.rad1) * Math.sin(this.rad2) * this.r;
-    this.z = Math.sin(this.rad1) * this.r;
-
-    this.obj.position.set(this.x, this.y, this.z);
+    points = get.pointSphere(this.rad1, this.rad2, this.r);
+    this.obj.position.set(points[0], points[1], points[2]);
     this.obj.up.set(0, 1, 0);
     this.obj.lookAt({
       x: 0,
@@ -87,7 +88,7 @@ var exports = function(){
 
 module.exports = exports();
 
-},{}],3:[function(require,module,exports){
+},{"./get":4}],3:[function(require,module,exports){
 module.exports = function(object, eventType, callback){
   var timer;
 
@@ -113,6 +114,13 @@ var exports = function(){
   
   Get.prototype.radian = function(degrees) {
     return degrees * Math.PI / 180;
+  };
+  
+  Get.prototype.pointSphere = function(rad1, rad2, r) {
+    var x = Math.cos(rad1) * Math.cos(rad2) * r;
+    var z = Math.cos(rad1) * Math.sin(rad2) * r;
+    var y = Math.sin(rad1) * r;
+    return [x, y, z];
   };
   
   return Get;
@@ -313,10 +321,8 @@ var exports = function() {
   };
 
   Particle.prototype.setPosition = function() {
-    this.x = Math.cos(this.rad1) * Math.cos(this.rad2) * (this.r);
-    this.z = Math.cos(this.rad1) * Math.sin(this.rad2) * (this.r);
-    this.y = Math.sin(this.rad1) * (this.r);
-    this.mesh.position.set(this.x, this.y, this.z);
+    var points = get.pointSphere(this.rad1, this.rad2, this.r);
+    this.mesh.position.set(points[0], points[1], points[2]);
   };
 
   Particle.prototype.setRotation = function() {
