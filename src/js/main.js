@@ -2,8 +2,9 @@ var Get = require('./get');
 var get = new Get();
 var debounce = require('./debounce');
 var Camera = require('./camera');
-var PointLight = require('./pointLight');
+var HemiLight = require('./hemiLight');
 var Bakcground = require('./background');
+var Pointer = require('./pointer');
 
 var bodyWidth = document.body.clientWidth;
 var bodyHeight = document.body.clientHeight;
@@ -20,8 +21,7 @@ var camera;
 var light;
 var globe;
 var ball;
-var particleArr = [];
-var particleNum = 64;
+var pointerArr = [];
 
 var initThree = function() {
   canvas = document.getElementById('canvas');
@@ -39,18 +39,39 @@ var initThree = function() {
 };
 
 var init = function() {
-  
+  var pointerArr = [
+    [0, 50000],
+    [90, 100000],
+    [120, 70000],
+    [200, 100000],
+    [270, 80000]
+  ];
+  var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 8);
+  var pointerGeometry2 = new THREE.SphereGeometry(30, 20, 20);
+  var pointerMaterial = new THREE.MeshLambertMaterial({
+    color: 0x44aaff
+  });
+  var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
+  console.log(pointerMatrix);
+  pointerGeometry1.merge(pointerGeometry2, pointerMatrix);
   
   initThree();
   
   camera = new Camera();
   camera.init(canvas, bodyWidth, bodyHeight, rad1Default, rad2Default);
   
-  light = new PointLight();
-  light.init(scene, get.radian(90), 0, 1000, 0xffffff, 1, 10000);
+  light = new HemiLight();
+  light.init(scene, 0, get.radian(180), 10000, 0xffffff, 0x222222, 1);
   
   globe = new Bakcground();
   globe.init(scene);
+  
+  for (var i = 0; i < pointerArr.length; i++) {
+    var radian = get.radian(pointerArr[i][0]);
+    var radius = get.radian(pointerArr[i][1]);
+    pointerArr[i] = new Pointer();
+    pointerArr[i].init(scene, pointerGeometry1, pointerMaterial, radian, radius);
+  }
   
   setEvent();
   renderloop();
@@ -134,15 +155,6 @@ var setEvent = function () {
 
 var render = function() {
   renderer.clear();
-  
-  for (var i = 0; i < particleArr.length; i++) {
-    particleArr[i].rad1Base += get.radian(1);
-    particleArr[i].rad2Base += get.radian(2);
-    particleArr[i].move();
-    particleArr[i].setPosition();
-    particleArr[i].setRotation();
-  };
-  
   renderer.render(scene, camera.obj);
 };
 
