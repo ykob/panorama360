@@ -1,35 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Get = require('./get');
-var get = new Get();
-
-var exports = function() {
-  var Ball = function() {
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
+var exports = function(){
+  var Globe = function() {
+    this.r = 2000;
+    this.segment = 30;
+    this.textureSrc;
+    
     this.geometry;
     this.material;
     this.mesh;
   };
 
-  Ball.prototype.init = function(scene, geometry, material) {
-    this.geometry = geometry;
-    this.material = material;
+  Globe.prototype.init = function(scene) {
+    this.textureSrc = new THREE.ImageUtils.loadTexture('img/360.jpg');
+    this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
+    this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
+    this.material = new THREE.MeshBasicMaterial({
+      map: this.textureSrc
+    });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.setPosition();
     scene.add(this.mesh);
   };
 
-  Ball.prototype.setPosition = function() {
-    this.mesh.position.set(this.x, this.y, this.z);
-  };
-  
-  return Ball;
+  return Globe;
 };
 
 module.exports = exports();
 
-},{"./get":4}],2:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 var Get = require('./get');
 var get = new Get();
 
@@ -116,42 +113,12 @@ var exports = function(){
 module.exports = exports();
 
 },{}],5:[function(require,module,exports){
-var exports = function(){
-  var Globe = function() {
-    this.r = 2000;
-    this.segment = 30;
-    this.textureSrc;
-    
-    this.geometry;
-    this.material;
-    this.mesh;
-  };
-
-  Globe.prototype.init = function(scene) {
-    this.textureSrc = new THREE.ImageUtils.loadTexture('img/360.jpg');
-    this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
-    this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
-    this.material = new THREE.MeshBasicMaterial({
-      map: this.textureSrc
-    });
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    scene.add(this.mesh);
-  };
-
-  return Globe;
-};
-
-module.exports = exports();
-
-},{}],6:[function(require,module,exports){
 var Get = require('./get');
 var get = new Get();
 var debounce = require('./debounce');
 var Camera = require('./camera');
 var PointLight = require('./pointLight');
-var Globe = require('./globe');
-var Ball = require('./ball');
-var Particle = require('./particle');
+var Bakcground = require('./background');
 
 var bodyWidth = document.body.clientWidth;
 var bodyHeight = document.body.clientHeight;
@@ -187,16 +154,7 @@ var initThree = function() {
 };
 
 var init = function() {
-  var ballGeometry = new THREE.SphereGeometry(120, 30, 30);
-  var ballMaterial = new THREE.MeshLambertMaterial({
-    color: 0xffffff,
-    opacity: 0.8,
-    transparent: true
-  });
-  var baseGeometry = new THREE.BoxGeometry(1, 1, 1);
-  var baseMaterial = new THREE.MeshLambertMaterial({
-    color: 0xffffff
-  });
+  
   
   initThree();
   
@@ -206,7 +164,7 @@ var init = function() {
   light = new PointLight();
   light.init(scene, get.radian(90), 0, 1000, 0xffffff, 1, 10000);
   
-  globe = new Globe();
+  globe = new Bakcground();
   globe.init(scene);
   
   setEvent();
@@ -229,6 +187,8 @@ var setEvent = function () {
   var axis = new THREE.Vector3(0, 1, 0);
   
   var eventTouchMove = function() {
+    rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
+    rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
     if (get.degree(rad1) > 90) {
         rad1 = get.radian(90);
     }
@@ -258,8 +218,6 @@ var setEvent = function () {
     if (isDrag) {
       mousemoveX = event.clientX;
       mousemoveY = event.clientY;
-      rad1 = radBase1 + get.radian((mousemoveY - mousedownY) / 4);
-      rad2 = radBase2 + get.radian((mousemoveX - mousedownX) / 4);
       eventTouchMove();
     }
   });
@@ -280,8 +238,6 @@ var setEvent = function () {
     if (isDrag) {
       mousemoveX = event.touches[0].clientX;
       mousemoveY = event.touches[0].clientY;
-      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
-      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
       eventTouchMove();
     }
   });
@@ -320,80 +276,12 @@ var resizeRenderer = function() {
   bodyWidth  = document.body.clientWidth;
   bodyHeight = document.body.clientHeight;
   renderer.setSize(bodyWidth, bodyHeight);
-  camera.init(bodyWidth, bodyHeight);
+  camera.init(canvas, bodyWidth, bodyHeight, rad1Default, rad2Default);
 };
 
 init();
 
-},{"./ball":1,"./camera":2,"./debounce":3,"./get":4,"./globe":5,"./particle":7,"./pointLight":8}],7:[function(require,module,exports){
-var Get = require('./get');
-var get = new Get();
-
-var exports = function() {
-  var Particle = function() {
-    this.size = 1;
-    this.scale = 0;
-    this.rad1Base = 0;
-    this.rad1 = 0;
-    this.rad2Base = 0;
-    this.rad2 = 0;
-    this.r = 0;
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-    this.rotateX = 0;
-    this.rotateY = 0;
-    this.rotateZ = 0;
-    this.geometry;
-    this.material;
-    this.mesh;
-  };
-
-  Particle.prototype.init = function(scene, geometry, material, index, all) {
-    this.geometry = geometry;
-    this.material = material;
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.scale = 60;
-    this.r = 320;
-
-    this.changeScale();
-    this.rad1Base = get.radian(360 * index / all);
-    this.rad2Base = get.radian(360 * index / all);
-    this.move(index);
-    this.setPosition();
-    this.setRotation();
-    scene.add(this.mesh);
-  };
-
-  Particle.prototype.changeScale = function() {
-    this.mesh.scale.x = this.scale * this.size;
-    this.mesh.scale.y = this.scale * this.size;
-    this.mesh.scale.z = this.scale * this.size;
-  };
-
-  Particle.prototype.move = function(index) {
-    this.rad1 = get.radian(Math.sin(this.rad1Base) * 10);
-    this.rad2 = this.rad2Base;
-  };
-
-  Particle.prototype.setPosition = function() {
-    var points = get.pointSphere(this.rad1, this.rad2, this.r);
-    this.mesh.position.set(points[0], points[1], points[2]);
-  };
-
-  Particle.prototype.setRotation = function() {
-    this.rotateX = this.rad1 * 3;
-    this.rotateY = this.rad1 * 3;
-    this.rotateZ = this.rad1 * 3;
-    this.mesh.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
-  };
-  
-  return Particle;
-};
-
-module.exports = exports();
-
-},{"./get":4}],8:[function(require,module,exports){
+},{"./background":1,"./camera":2,"./debounce":3,"./get":4,"./pointLight":6}],6:[function(require,module,exports){
 var Get = require('./get');
 var get = new Get();
 
@@ -428,4 +316,4 @@ var exports = function(){
 
 module.exports = exports();
 
-},{"./get":4}]},{},[6]);
+},{"./get":4}]},{},[5]);
