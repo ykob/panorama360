@@ -6,7 +6,7 @@ http://ykob.github.io/demo-threejs-360panorama/
 
 使用させていただいている全天球写真の掲載元はこちら。
 
-- [高解像度360度パノラマ撮影　全天球パノラマ撮影 | ふうせん宇宙撮影](http://fusenucyu.com/?page_id=6241)
+- [360 Spherical Panorama of Al Salt - Jordan (2) by Rami94 on DeviantArt](http://rami94.deviantart.com/art/360-Spherical-Panorama-of-Al-Salt-Jordan-2-453635063)
 
 ## npm install
 

@@ -1,6 +1,6 @@
 var exports = function(){
   var Globe = function() {
-    this.r = 2400;
+    this.r = 2000;
     this.segment = 30;
     this.textureSrc;
     

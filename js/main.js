@@ -42,20 +42,18 @@ var exports = function(){
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    this.r = 0;
+    this.r = 800;
     this.obj;
-    this.trackball;
   };
   
-  Camera.prototype.init = function(width, height) {
+  Camera.prototype.init = function(canvas, width, height, rad1, rad2) {
+    this.canvas = canvas;
     this.width = width;
     this.height = height;
-    this.r = 1200;
-    this.rad1 = get.radian(-20);
-    this.rad2 = get.radian(0);
+    this.rad1 = rad1;
+    this.rad2 = rad2;
     this.obj = new THREE.PerspectiveCamera(50, this.width / this.height, 1, 10000);
-    this.setPosition(this.rad1, this.rad2, this.r);
-    this.initTrackBall();
+    this.setPosition(this.rad1, this.rad2);
   };
   
   Camera.prototype.setPosition = function(rad1, rad2) {
@@ -64,25 +62,12 @@ var exports = function(){
     this.rad2 = rad2;
     points = get.pointSphere(this.rad1, this.rad2, this.r);
     this.obj.position.set(points[0], points[1], points[2]);
-    this.obj.up.set(0, 1, 0.5);
+    this.obj.up.set(0, 1, 0);
     this.obj.lookAt({
       x: 0,
       y: 0,
       z: 0
     });
-  };
-  
-  Camera.prototype.initTrackBall = function() {
-    this.trackball = new THREE.TrackballControls(this.obj, this.canvas);
-    this.trackball.screen.width = this.width;
-    this.trackball.screen.height = this.height;
-    this.trackball.noRotate = false;
-    this.trackball.rotateSpeed = 3;
-    this.trackball.noZoom = true;
-    this.trackball.zoomSpeed = 1;
-    this.trackball.noPan = false;
-    this.trackball.maxDistance = 3000;
-    this.trackball.minDistance = 500;
   };
   
   return Camera;
@@ -133,7 +118,7 @@ module.exports = exports();
 },{}],5:[function(require,module,exports){
 var exports = function(){
   var Globe = function() {
-    this.r = 2400;
+    this.r = 2000;
     this.segment = 30;
     this.textureSrc;
     
@@ -173,6 +158,8 @@ var bodyHeight = document.body.clientHeight;
 var fps = 60;
 var frameTime = 1000 / this.fps;
 var lastTimeRender;
+var rad1Default = 0;
+var rad2Default = 0;
 
 var canvas;
 var renderer;
@@ -214,7 +201,7 @@ var init = function() {
   initThree();
   
   camera = new Camera();
-  camera.init(bodyWidth, bodyHeight);
+  camera.init(canvas, bodyWidth, bodyHeight, rad1Default, rad2Default);
   
   light = new PointLight();
   light.init(scene, get.radian(90), 0, 1000, 0xffffff, 1, 10000);
@@ -222,17 +209,85 @@ var init = function() {
   globe = new Globe();
   globe.init(scene);
   
-  ball = new Ball();
-  ball.init(scene, ballGeometry, ballMaterial);
-  
-  for (var i = 0; i < particleNum; i++) {
-    particleArr[i] = new Particle();
-    particleArr[i].init(scene, baseGeometry, baseMaterial, i, particleNum);
-  };
-  
+  setEvent();
   renderloop();
   debounce(window, 'resize', function(event){
     resizeRenderer();
+  });
+};
+
+var setEvent = function () {
+  var mousedownX = 0;
+  var mousedownY = 0;
+  var mousemoveX = 0;
+  var mousemoveY = 0;
+  var radBase1 = rad1Default;
+  var radBase2 = rad2Default;
+  var rad1 = radBase1;
+  var rad2 = radBase2;
+  var isDrag = false;
+  var axis = new THREE.Vector3(0, 1, 0);
+  
+  var eventTouchMove = function() {
+    if (get.degree(rad1) > 90) {
+        rad1 = get.radian(90);
+    }
+    if (get.degree(rad1) < -90) {
+        rad1 = get.radian(-90);
+    }
+    camera.setPosition(rad1, rad2);
+  };
+  
+  var eventTouchEnd = function() {
+    if (isDrag) {
+      radBase1 = rad1;
+      radBase2 = rad2;
+      isDrag = false;
+    }
+  };
+
+  canvas.addEventListener('mousedown', function (event) {
+    if (!isDrag) {
+      mousedownX = event.clientX;
+      mousedownY = event.clientY;
+      isDrag = true;
+    }
+  });
+
+  canvas.addEventListener('mousemove', function (event) {
+    if (isDrag) {
+      mousemoveX = event.clientX;
+      mousemoveY = event.clientY;
+      rad1 = radBase1 + get.radian((mousemoveY - mousedownY) / 4);
+      rad2 = radBase2 + get.radian((mousemoveX - mousedownX) / 4);
+      eventTouchMove();
+    }
+  });
+
+  canvas.addEventListener('mouseup', function () {
+    eventTouchEnd();
+  });
+
+  canvas.addEventListener('touchstart', function (event) {
+    if (!isDrag) {
+      mousedownX = event.touches[0].clientX;
+      mousedownY = event.touches[0].clientY;
+      isDrag = true;
+    }
+  });
+
+  canvas.addEventListener('touchmove', function (event) {
+    if (isDrag) {
+      mousemoveX = event.touches[0].clientX;
+      mousemoveY = event.touches[0].clientY;
+      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
+      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
+      eventTouchMove();
+    }
+  });
+
+  canvas.addEventListener('touchend', function () {
+    eventTouchEnd();
   });
 };
 
@@ -248,7 +303,6 @@ var render = function() {
   };
   
   renderer.render(scene, camera.obj);
-  camera.trackball.update();
 };
 
 var renderloop = function() {

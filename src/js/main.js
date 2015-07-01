@@ -12,6 +12,8 @@ var bodyHeight = document.body.clientHeight;
 var fps = 60;
 var frameTime = 1000 / this.fps;
 var lastTimeRender;
+var rad1Default = 0;
+var rad2Default = 0;
 
 var canvas;
 var renderer;
@@ -53,7 +55,7 @@ var init = function() {
   initThree();
   
   camera = new Camera();
-  camera.init(bodyWidth, bodyHeight);
+  camera.init(canvas, bodyWidth, bodyHeight, rad1Default, rad2Default);
   
   light = new PointLight();
   light.init(scene, get.radian(90), 0, 1000, 0xffffff, 1, 10000);
@@ -61,17 +63,85 @@ var init = function() {
   globe = new Globe();
   globe.init(scene);
   
-  ball = new Ball();
-  ball.init(scene, ballGeometry, ballMaterial);
-  
-  for (var i = 0; i < particleNum; i++) {
-    particleArr[i] = new Particle();
-    particleArr[i].init(scene, baseGeometry, baseMaterial, i, particleNum);
-  };
-  
+  setEvent();
   renderloop();
   debounce(window, 'resize', function(event){
     resizeRenderer();
+  });
+};
+
+var setEvent = function () {
+  var mousedownX = 0;
+  var mousedownY = 0;
+  var mousemoveX = 0;
+  var mousemoveY = 0;
+  var radBase1 = rad1Default;
+  var radBase2 = rad2Default;
+  var rad1 = radBase1;
+  var rad2 = radBase2;
+  var isDrag = false;
+  var axis = new THREE.Vector3(0, 1, 0);
+  
+  var eventTouchMove = function() {
+    if (get.degree(rad1) > 90) {
+        rad1 = get.radian(90);
+    }
+    if (get.degree(rad1) < -90) {
+        rad1 = get.radian(-90);
+    }
+    camera.setPosition(rad1, rad2);
+  };
+  
+  var eventTouchEnd = function() {
+    if (isDrag) {
+      radBase1 = rad1;
+      radBase2 = rad2;
+      isDrag = false;
+    }
+  };
+
+  canvas.addEventListener('mousedown', function (event) {
+    if (!isDrag) {
+      mousedownX = event.clientX;
+      mousedownY = event.clientY;
+      isDrag = true;
+    }
+  });
+
+  canvas.addEventListener('mousemove', function (event) {
+    if (isDrag) {
+      mousemoveX = event.clientX;
+      mousemoveY = event.clientY;
+      rad1 = radBase1 + get.radian((mousemoveY - mousedownY) / 4);
+      rad2 = radBase2 + get.radian((mousemoveX - mousedownX) / 4);
+      eventTouchMove();
+    }
+  });
+
+  canvas.addEventListener('mouseup', function () {
+    eventTouchEnd();
+  });
+
+  canvas.addEventListener('touchstart', function (event) {
+    if (!isDrag) {
+      mousedownX = event.touches[0].clientX;
+      mousedownY = event.touches[0].clientY;
+      isDrag = true;
+    }
+  });
+
+  canvas.addEventListener('touchmove', function (event) {
+    if (isDrag) {
+      mousemoveX = event.touches[0].clientX;
+      mousemoveY = event.touches[0].clientY;
+      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
+      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
+      eventTouchMove();
+    }
+  });
+
+  canvas.addEventListener('touchend', function () {
+    eventTouchEnd();
   });
 };
 
@@ -87,7 +157,6 @@ var render = function() {
   };
   
   renderer.render(scene, camera.obj);
-  camera.trackball.update();
 };
 
 var renderloop = function() {

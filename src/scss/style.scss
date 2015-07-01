@@ -8,25 +8,25 @@ html {
 body {
   height: 100%;
   overflow: hidden;
+  font-family: 'Hammersmith One'; 
+}
+a {
+  color: #fff;
 }
 canvas {
   position: absolute;
 }
-p {
-  &.photo-by {
-    position: absolute;
-    bottom: 1em;
-    left: 1em;
-    z-index: 1000;
-    padding: 0.7em 1em;
-    color: #fff;
+.sumamry {
+  position: absolute;
+  bottom: 4%;
+  left: 4%;
+  z-index: 10000;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  h1 {
+    font-size: 150%;
+  }
+  p {
     font-size: 80%;
-    background-color: #000;
-    a {
-      color: #fff;
-      &:hover {
-        text-decoration: none;
-      }
-    }
   }
 }
