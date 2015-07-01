@@ -39,17 +39,17 @@ var initThree = function() {
 };
 
 var init = function() {
-  var pointerArr = [
-    [0, 50000],
-    [90, 100000],
-    [120, 70000],
-    [200, 100000],
-    [270, 80000]
+  var pointerValArr = [
+    [0, 1200],
+    [90, 1500],
+    [120, 1000],
+    [200, 1700],
+    [270, 1200]
   ];
-  var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 8);
+  var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 6);
   var pointerGeometry2 = new THREE.SphereGeometry(30, 20, 20);
   var pointerMaterial = new THREE.MeshLambertMaterial({
-    color: 0x44aaff
+    color: 0xcc3333
   });
   var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
   console.log(pointerMatrix);
@@ -66,11 +66,12 @@ var init = function() {
   globe = new Bakcground();
   globe.init(scene);
   
-  for (var i = 0; i < pointerArr.length; i++) {
-    var radian = get.radian(pointerArr[i][0]);
-    var radius = get.radian(pointerArr[i][1]);
+  for (var i = 0; i < pointerValArr.length; i++) {
+    var radian = get.radian(pointerValArr[i][0]);
+    var radius = pointerValArr[i][1];
     pointerArr[i] = new Pointer();
     pointerArr[i].init(scene, pointerGeometry1, pointerMaterial, radian, radius);
+    pointerArr[i].radRotate = get.radian(get.randomInt(0, 360));
   }
   
   setEvent();
@@ -155,6 +156,12 @@ var setEvent = function () {
 
 var render = function() {
   renderer.clear();
+  
+  for (var i = 0; i < pointerArr.length; i++) {
+    pointerArr[i].radRotate += get.radian(2);
+    pointerArr[i].animateStay();
+  };
+  
   renderer.render(scene, camera.obj);
 };
 
