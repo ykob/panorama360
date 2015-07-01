@@ -30,7 +30,7 @@ var exports = function(){
 
   Pointer.prototype.animateStay = function() {
     this.mesh.rotation.y = this.radRotate;
-    this.mesh.position.y = Math.sin(this.radRotate) * 20;
+    this.mesh.position.y = Math.sin(this.radRotate) * 20 - 50;
   };
 
   return Pointer;
