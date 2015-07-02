@@ -316,12 +316,10 @@ var render = function() {
   if (intersects.length > 0) {
     raycastId = intersects[0].object.id;
   }
-  
   for (var i = 0; i < pointerArr.length; i++) {
     pointerArr[i].radRotate += get.radian(2);
     pointerArr[i].animateStay();
-    console.log(raycastId, pointerArr[i].getId());
-    if (raycastId == pointerArr[i].getId()) {
+    if (raycastId == pointerArr[i].mesh.id) {
       pointerArr[i].animateFocus();
     }
   };
@@ -387,10 +385,6 @@ var exports = function(){
 
   Pointer.prototype.animateFocus = function() {
     this.radRotate += get.radian(4);
-  };
-
-  Pointer.prototype.getId = function(id) {
-    return this.mesh.id;
   };
 
   return Pointer;

@@ -37,10 +37,6 @@ var exports = function(){
     this.radRotate += get.radian(4);
   };
 
-  Pointer.prototype.getId = function(id) {
-    return this.mesh.id;
-  };
-
   return Pointer;
 };
 
