@@ -162,13 +162,16 @@ var frameTime = 1000 / this.fps;
 var lastTimeRender;
 var rad1Default = 0;
 var rad2Default = 0;
+var raycaster = new THREE.Raycaster();
+var mouseVector = new THREE.Vector2();
+var intersects;
 
 var canvas;
 var renderer;
 var scene;
 var camera;
 var light;
-var globe;
+var background;
 var ball;
 var pointerArr = [];
 
@@ -201,7 +204,6 @@ var init = function() {
     color: 0xcc3333
   });
   var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
-  console.log(pointerMatrix);
   pointerGeometry1.merge(pointerGeometry2, pointerMatrix);
   
   initThree();
@@ -212,8 +214,8 @@ var init = function() {
   light = new HemiLight();
   light.init(scene, 0, get.radian(180), 10000, 0xffffff, 0x222222, 1);
   
-  globe = new Bakcground();
-  globe.init(scene);
+  background = new Bakcground();
+  background.init(scene);
   
   for (var i = 0; i < pointerValArr.length; i++) {
     var radian = get.radian(pointerValArr[i][0]);
@@ -276,6 +278,8 @@ var setEvent = function () {
       mousemoveY = event.clientY;
       eventTouchMove();
     }
+    mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1; 
   });
 
   canvas.addEventListener('mouseup', function () {
@@ -304,13 +308,24 @@ var setEvent = function () {
 };
 
 var render = function() {
+  var raycastId = 0;
+  
   renderer.clear();
+  raycaster.setFromCamera(mouseVector, camera.obj);
+  intersects = raycaster.intersectObjects(scene.children);
+  if (intersects.length > 0) {
+    raycastId = intersects[0].object.id;
+  }
   
   for (var i = 0; i < pointerArr.length; i++) {
     pointerArr[i].radRotate += get.radian(2);
     pointerArr[i].animateStay();
+    console.log(raycastId, pointerArr[i].getId());
+    if (raycastId == pointerArr[i].getId()) {
+      pointerArr[i].animateFocus();
+    }
   };
-  
+
   renderer.render(scene, camera.obj);
 };
 
@@ -368,6 +383,14 @@ var exports = function(){
   Pointer.prototype.animateStay = function() {
     this.mesh.rotation.y = this.radRotate;
     this.mesh.position.y = Math.sin(this.radRotate) * 20 - 50;
+  };
+
+  Pointer.prototype.animateFocus = function() {
+    this.radRotate += get.radian(4);
+  };
+
+  Pointer.prototype.getId = function(id) {
+    return this.mesh.id;
   };
 
   return Pointer;
