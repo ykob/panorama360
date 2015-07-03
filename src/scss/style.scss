@@ -19,6 +19,61 @@ a {
 canvas {
   position: absolute;
 }
+.information {
+  height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20000;
+  .info-modal {
+    width: 90%;
+    max-width: 900px;
+    height: 0;
+    opacity: 0;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    line-height: 1.75;
+    overflow-y: scroll;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    z-index: 20002;
+    background-color: #FFF;
+    transition: 0.3s;
+    transition-timing-function: ease-out;
+  }
+  .info-modal-inner {
+    padding: 8% 5%;
+    p {
+      margin-top: 1.75em;
+    }
+  }
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20001;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+.isViewingModal {
+  .information {
+    height: auto;
+    display: block;
+    .info-modal {
+      height: 80%;
+      opacity: 1;
+    }
+  }
+}
 .sumamry {
   position: absolute;
   bottom: 4%;

@@ -27,6 +27,7 @@ var ball;
 var pointerArr = [];
 
 var isFocusPointer = false;
+var isViewingModal = false;
 
 var initThree = function() {
   canvas = document.getElementById('canvas');
@@ -118,12 +119,16 @@ var setEvent = function () {
   };
 
   canvas.addEventListener('mousedown', function (event) {
+    if (isFocusPointer && !isViewingModal) {
+      isViewingModal = true;
+      return false;
+    }
     if (!isDrag) {
       mousedownX = event.clientX;
       mousedownY = event.clientY;
       isDrag = true;
+      return false;
     }
-    return false;
   });
 
   canvas.addEventListener('mousemove', function (event) {
@@ -143,12 +148,13 @@ var setEvent = function () {
   });
 
   canvas.addEventListener('touchstart', function (event) {
+
     if (!isDrag) {
       mousedownX = event.touches[0].clientX;
       mousedownY = event.touches[0].clientY;
       isDrag = true;
+      return false;
     }
-    return false;
   });
 
   canvas.addEventListener('touchmove', function (event) {
@@ -170,16 +176,22 @@ var render = function() {
   renderer.clear();
   raycaster.setFromCamera(mouseVector, camera.obj);
   intersects = raycaster.intersectObjects(scene.children);
-  if (intersects.length > 1) {
+  
+  if (isViewingModal) {
+    document.body.className = 'isViewingModal';
+  }
+  if (intersects.length > 1 && !isViewingModal) {
     raycastId = intersects[0].object.id;
-    if (!isFocusPointer) {
-       isFocusPointer = true;
-       document.body.className = 'isFocus';
-    }
-  } else if (isFocusPointer) {
+  }
+  if (intersects.length > 1 && !isViewingModal && !isFocusPointer) {
+     isFocusPointer = true;
+     document.body.className = 'isFocus';
+  }
+  if (intersects.length < 2 && isFocusPointer) {
     isFocusPointer = false;
     document.body.className = '';
   }
+  
   for (var i = 0; i < pointerArr.length; i++) {
     pointerArr[i].radRotate += get.radian(2);
     pointerArr[i].animateStay();
