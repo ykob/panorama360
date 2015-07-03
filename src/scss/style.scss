@@ -4,6 +4,7 @@
 }
 html {
   height: 100%;
+  user-select: none;
 }
 body {
   height: 100%;
@@ -34,7 +35,6 @@ canvas {
     opacity: 0;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
     line-height: 1.75;
-    overflow-y: scroll;
     position: absolute;
     top: 0;
     right: 0;
@@ -47,6 +47,9 @@ canvas {
     transition-timing-function: ease-out;
   }
   .info-modal-inner {
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
     padding: 8% 5%;
     p {
       margin-top: 1.75em;

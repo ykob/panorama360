@@ -102,15 +102,23 @@ var setEvent = function () {
   var infoBack = document.getElementById('info-back');
   
   var eventTouchMove = function() {
-    rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
-    rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
-    if (get.degree(rad1) > 90) {
-        rad1 = get.radian(90);
+    if (isClick) {
+      if (Math.abs(mousedownX - mousemoveX) > 5 || Math.abs(mousedownY - mousemoveY) > 5) {
+        isClick = false;
+        isDrag = true;
+      }
     }
-    if (get.degree(rad1) < -90) {
-        rad1 = get.radian(-90);
+    if (isDrag) {
+      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
+      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
+      if (get.degree(rad1) > 90) {
+          rad1 = get.radian(90);
+      }
+      if (get.degree(rad1) < -90) {
+          rad1 = get.radian(-90);
+      }
+      camera.setPosition(rad1, rad2);
     }
-    camera.setPosition(rad1, rad2);
   };
   
   var eventTouchEnd = function() {
@@ -118,13 +126,21 @@ var setEvent = function () {
       radBase1 = rad1;
       radBase2 = rad2;
       isDrag = false;
-    } else if (isFocusPointer && !isViewingModal) {
+    }
+    if (!isDrag && isFocusPointer && !isViewingModal) {
       isViewingModal = true;
     }
-    isClick = false;
+    if (isClick) {
+      isClick = false;
+    }
   };
 
+  canvas.addEventListener('selectstart', function (event) {
+    event.preventDefault();
+  });
+
   canvas.addEventListener('mousedown', function (event) {
+    isDrag = false;
     if (!isClick) {
       mousedownX = event.clientX;
       mousedownY = event.clientY;
@@ -133,18 +149,11 @@ var setEvent = function () {
   });
 
   canvas.addEventListener('mousemove', function (event) {
-    if (isClick) {
-      mousemoveX = event.clientX;
-      mousemoveY = event.clientY;
-      if (Math.abs(mousedownX - mousemoveX) > 20 || Math.abs(mousedownY - mousemoveY) < 20) {
-        isDrag = true;
-      }
-    }
-    if (isDrag) {
-      eventTouchMove();
-    }
+    mousemoveX = event.clientX;
+    mousemoveY = event.clientY;
     mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    eventTouchMove();
   });
 
   canvas.addEventListener('mouseup', function () {
@@ -152,19 +161,19 @@ var setEvent = function () {
   });
 
   canvas.addEventListener('touchstart', function (event) {
-    if (!isDrag) {
-      mousedownX = event.touches[0].clientX;
-      mousedownY = event.touches[0].clientY;
-      isDrag = true;
+    if (!isClick) {
+      mousedownX = event.clientX;
+      mousedownY = event.clientY;
+      isClick = true;
     }
   });
 
   canvas.addEventListener('touchmove', function (event) {
-    if (isDrag) {
-      mousemoveX = event.touches[0].clientX;
-      mousemoveY = event.touches[0].clientY;
-      eventTouchMove();
-    }
+    mousemoveX = event.clientX;
+    mousemoveY = event.clientY;
+    mouseVector.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+    mouseVector.y = - (event.touches[0].clientY / window.innerHeight) * 2 + 1;
+    eventTouchMove();
   });
 
   canvas.addEventListener('touchend', function () {
@@ -172,7 +181,7 @@ var setEvent = function () {
   });
   
   infoBack.addEventListener('mouseup', function() {
-    if (isViewedModal) {
+    if (isViewedModal && !isViewingModal) {
       document.body.className = '';
       isViewedModal = false;
     }
@@ -181,7 +190,7 @@ var setEvent = function () {
 
 var render = function() {
   var raycastId = 0;
-  
+
   renderer.clear();
   raycaster.setFromCamera(mouseVector, camera.obj);
   intersects = raycaster.intersectObjects(scene.children);
@@ -191,7 +200,7 @@ var render = function() {
     setTimeout(function() {
       isViewingModal = false;
       isViewedModal = true;
-    }, 500);
+    }, 400);
   }
   if (intersects.length > 1 && !isViewingModal) {
     raycastId = intersects[0].object.id;
