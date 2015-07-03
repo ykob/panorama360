@@ -16,6 +16,7 @@ var rad2Default = 0;
 var raycaster = new THREE.Raycaster();
 var mouseVector = new THREE.Vector2();
 var intersects;
+var focusedPointerId = 0;
 
 var canvas;
 var renderer;
@@ -25,6 +26,7 @@ var light;
 var background;
 var ball;
 var pointerArr = [];
+var information = document.getElementById('information');
 
 var isFocusPointer = false;
 var isViewingModal = false;
@@ -78,6 +80,7 @@ var init = function() {
     pointerArr[i] = new Pointer();
     pointerArr[i].init(scene, pointerGeometry1, pointerMaterial, radian, radius);
     pointerArr[i].radRotate = get.radian(get.randomInt(0, 360));
+    pointerArr[i].modalId = i + 1;
   }
   
   setEvent();
@@ -101,7 +104,21 @@ var setEvent = function () {
   var axis = new THREE.Vector3(0, 1, 0);
   var infoBack = document.getElementById('info-back');
   
-  var eventTouchMove = function() {
+  var eventTouchStart = function(x, y) {
+    if (!isClick) {
+      mousedownX = x;
+      mousedownY = y;
+      mouseVector.x = (x / window.innerWidth) * 2 - 1;
+      mouseVector.y = - (y / window.innerHeight) * 2 + 1;
+      isClick = true;
+    }
+  };
+  
+  var eventTouchMove = function(x, y) {
+    mousemoveX = x;
+    mousemoveY = y;
+    mouseVector.x = (x / window.innerWidth) * 2 - 1;
+    mouseVector.y = - (y / window.innerHeight) * 2 + 1;
     if (isClick) {
       if (Math.abs(mousedownX - mousemoveX) > 5 || Math.abs(mousedownY - mousemoveY) > 5) {
         isClick = false;
@@ -134,10 +151,21 @@ var setEvent = function () {
       isClick = false;
     }
   };
+  
+  var touchEndInfoBack = function(x, y) {
+    if (isViewedModal && !isViewingModal) {
+      mouseVector.x = (x / window.innerWidth) * 2 - 1;
+      mouseVector.y = - (y / window.innerHeight) * 2 + 1;
+      document.body.className = '';
+      information.className = 'information';
+      isViewedModal = false;
+      focusedPointerId = 0;
+    }
+  };
 
   window.addEventListener('contextmenu', function (event) {
     event.preventDefault();
-  })
+  });
 
   canvas.addEventListener('selectstart', function (event) {
     event.preventDefault();
@@ -145,20 +173,12 @@ var setEvent = function () {
 
   canvas.addEventListener('mousedown', function (event) {
     event.preventDefault();
-    if (!isClick) {
-      mousedownX = event.clientX;
-      mousedownY = event.clientY;
-      isClick = true;
-    }
+    eventTouchStart(event.clientX, event.clientY);
   });
 
   canvas.addEventListener('mousemove', function (event) {
     event.preventDefault();
-    mousemoveX = event.clientX;
-    mousemoveY = event.clientY;
-    mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    eventTouchMove();
+    eventTouchMove(event.clientX, event.clientY);
   });
 
   canvas.addEventListener('mouseup', function (event) {
@@ -168,20 +188,12 @@ var setEvent = function () {
 
   canvas.addEventListener('touchstart', function (event) {
     event.preventDefault();
-    if (!isClick) {
-      mousedownX = event.clientX;
-      mousedownY = event.clientY;
-      isClick = true;
-    }
+    eventTouchStart(event.touches[0].clientX, event.touches[0].clientY);
   });
 
   canvas.addEventListener('touchmove', function (event) {
     event.preventDefault();
-    mousemoveX = event.clientX;
-    mousemoveY = event.clientY;
-    mouseVector.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-    mouseVector.y = - (event.touches[0].clientY / window.innerHeight) * 2 + 1;
-    eventTouchMove();
+    eventTouchMove(event.touches[0].clientX, event.touches[0].clientY);
   });
 
   canvas.addEventListener('touchend', function (event) {
@@ -191,22 +203,20 @@ var setEvent = function () {
   
   infoBack.addEventListener('mouseup', function (event) {
     event.preventDefault();
-    if (isViewedModal && !isViewingModal) {
-      document.body.className = '';
-      isViewedModal = false;
-    }
-  }, false);
+    touchEndInfoBack(event.clientX, event.clientY);
+  });
 };
 
 var render = function() {
-  var raycastId = 0;
+  var raycastId = -1;
 
   renderer.clear();
   raycaster.setFromCamera(mouseVector, camera.obj);
   intersects = raycaster.intersectObjects(scene.children);
   
   if (isViewingModal) {
-    document.body.className = 'isViewingModal';
+    document.body.className = 'is-viewing-modal';
+    information.className = 'information viewing-modal-id-0' + focusedPointerId;
     setTimeout(function() {
       isViewingModal = false;
       isViewedModal = true;
@@ -217,7 +227,7 @@ var render = function() {
   }
   if (intersects.length > 1 && !isViewingModal && !isFocusPointer) {
      isFocusPointer = true;
-     document.body.className = 'isFocus';
+     document.body.className = 'is-focus';
   }
   if (intersects.length < 2 && isFocusPointer) {
     isFocusPointer = false;
@@ -229,6 +239,7 @@ var render = function() {
     pointerArr[i].animateStay();
     if (raycastId == pointerArr[i].mesh.id) {
       pointerArr[i].animateFocus();
+      focusedPointerId = pointerArr[i].modalId;
     }
   };
 

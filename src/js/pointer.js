@@ -7,6 +7,7 @@ var exports = function(){
     this.rad1 = 0;
     this.rad2 = 0;
     this.radRotate = 0;
+    this.modalId = 0;
     this.geometry;
     this.material;
     this.mesh;

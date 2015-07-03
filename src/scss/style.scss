@@ -10,7 +10,7 @@ body {
   height: 100%;
   overflow: hidden;
   font-family: 'Hammersmith One';
-  &.isFocus {
+  &.is-focus {
     cursor: pointer
   }
 }
@@ -33,6 +33,7 @@ canvas {
     width: 90%;
     max-width: 900px;
     opacity: 0;
+    visibility: hidden;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
     line-height: 1.75;
     position: absolute;
@@ -72,17 +73,22 @@ canvas {
     transition-timing-function: ease-out;
   }
 }
-.isViewingModal {
+.is-viewing-modal {
   .information {
     height: auto;
     display: block;
-    .info-modal {
-      opacity: 1;
-    }
     .info-back {
       opacity: 1;
     }
   }
+}
+.viewing-modal-id-01 .info-modal-01,
+.viewing-modal-id-02 .info-modal-02,
+.viewing-modal-id-03 .info-modal-03,
+.viewing-modal-id-04 .info-modal-04,
+.viewing-modal-id-05 .info-modal-05 {
+  visibility: visible;
+  opacity: 1;
 }
 .sumamry {
   position: absolute;
