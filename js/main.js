@@ -177,6 +177,7 @@ var pointerArr = [];
 
 var isFocusPointer = false;
 var isViewingModal = false;
+var isViewedModal = false;
 
 var initThree = function() {
   canvas = document.getElementById('canvas');
@@ -244,8 +245,10 @@ var setEvent = function () {
   var radBase2 = rad2Default;
   var rad1 = radBase1;
   var rad2 = radBase2;
+  var isClick = false;
   var isDrag = false;
   var axis = new THREE.Vector3(0, 1, 0);
+  var infoBack = document.getElementById('info-back');
   
   var eventTouchMove = function() {
     rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
@@ -264,45 +267,44 @@ var setEvent = function () {
       radBase1 = rad1;
       radBase2 = rad2;
       isDrag = false;
+    } else if (isFocusPointer && !isViewingModal) {
+      isViewingModal = true;
     }
+    isClick = false;
   };
 
   canvas.addEventListener('mousedown', function (event) {
-    if (isFocusPointer && !isViewingModal) {
-      isViewingModal = true;
-      return false;
-    }
-    if (!isDrag) {
+    if (!isClick) {
       mousedownX = event.clientX;
       mousedownY = event.clientY;
-      isDrag = true;
-      return false;
+      isClick = true;
     }
   });
 
   canvas.addEventListener('mousemove', function (event) {
-    if (isDrag) {
+    if (isClick) {
       mousemoveX = event.clientX;
       mousemoveY = event.clientY;
+      if (Math.abs(mousedownX - mousemoveX) > 20 || Math.abs(mousedownY - mousemoveY) < 20) {
+        isDrag = true;
+      }
+    }
+    if (isDrag) {
       eventTouchMove();
     }
     mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    return false;
   });
 
   canvas.addEventListener('mouseup', function () {
     eventTouchEnd();
-    return false;
   });
 
   canvas.addEventListener('touchstart', function (event) {
-
     if (!isDrag) {
       mousedownX = event.touches[0].clientX;
       mousedownY = event.touches[0].clientY;
       isDrag = true;
-      return false;
     }
   });
 
@@ -317,6 +319,13 @@ var setEvent = function () {
   canvas.addEventListener('touchend', function () {
     eventTouchEnd();
   });
+  
+  infoBack.addEventListener('mouseup', function() {
+    if (isViewedModal) {
+      document.body.className = '';
+      isViewedModal = false;
+    }
+  }, false);
 };
 
 var render = function() {
@@ -328,6 +337,10 @@ var render = function() {
   
   if (isViewingModal) {
     document.body.className = 'isViewingModal';
+    setTimeout(function() {
+      isViewingModal = false;
+      isViewedModal = true;
+    }, 500);
   }
   if (intersects.length > 1 && !isViewingModal) {
     raycastId = intersects[0].object.id;
