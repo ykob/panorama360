@@ -33,7 +33,7 @@ canvas {
     width: 90%;
     max-width: 900px;
     opacity: 0;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
     line-height: 1.75;
     position: absolute;
     top: 0;
@@ -42,6 +42,7 @@ canvas {
     left: 0;
     margin: 5% auto;
     z-index: 20002;
+    border-radius: 4px;
     background-color: #FFF;
     transition: 0.2s;
     transition-timing-function: ease-out;

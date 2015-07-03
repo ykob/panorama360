@@ -135,12 +135,16 @@ var setEvent = function () {
     }
   };
 
+  window.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+  })
+
   canvas.addEventListener('selectstart', function (event) {
     event.preventDefault();
   });
 
   canvas.addEventListener('mousedown', function (event) {
-    isDrag = false;
+    event.preventDefault();
     if (!isClick) {
       mousedownX = event.clientX;
       mousedownY = event.clientY;
@@ -149,6 +153,7 @@ var setEvent = function () {
   });
 
   canvas.addEventListener('mousemove', function (event) {
+    event.preventDefault();
     mousemoveX = event.clientX;
     mousemoveY = event.clientY;
     mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -156,11 +161,13 @@ var setEvent = function () {
     eventTouchMove();
   });
 
-  canvas.addEventListener('mouseup', function () {
+  canvas.addEventListener('mouseup', function (event) {
+    event.preventDefault();
     eventTouchEnd();
   });
 
   canvas.addEventListener('touchstart', function (event) {
+    event.preventDefault();
     if (!isClick) {
       mousedownX = event.clientX;
       mousedownY = event.clientY;
@@ -169,6 +176,7 @@ var setEvent = function () {
   });
 
   canvas.addEventListener('touchmove', function (event) {
+    event.preventDefault();
     mousemoveX = event.clientX;
     mousemoveY = event.clientY;
     mouseVector.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
@@ -176,11 +184,13 @@ var setEvent = function () {
     eventTouchMove();
   });
 
-  canvas.addEventListener('touchend', function () {
+  canvas.addEventListener('touchend', function (event) {
+    event.preventDefault();
     eventTouchEnd();
   });
   
-  infoBack.addEventListener('mouseup', function() {
+  infoBack.addEventListener('mouseup', function (event) {
+    event.preventDefault();
     if (isViewedModal && !isViewingModal) {
       document.body.className = '';
       isViewedModal = false;
