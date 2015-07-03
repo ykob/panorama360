@@ -379,7 +379,7 @@ var render = function() {
      isFocusPointer = true;
      document.body.className = 'is-focus';
   }
-  if (intersects.length < 2 && isFocusPointer) {
+  if (intersects.length < 2 && !isViewedModal && isFocusPointer) {
     isFocusPointer = false;
     document.body.className = '';
   }
