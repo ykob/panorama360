@@ -26,6 +26,8 @@ var background;
 var ball;
 var pointerArr = [];
 
+var isFocusPointer = false;
+
 var initThree = function() {
   canvas = document.getElementById('canvas');
   renderer = new THREE.WebGLRenderer({
@@ -63,7 +65,7 @@ var init = function() {
   camera.init(canvas, bodyWidth, bodyHeight, rad1Default, rad2Default);
   
   light = new HemiLight();
-  light.init(scene, 0, get.radian(180), 10000, 0xffffff, 0x222222, 1);
+  light.init(scene, 0, get.radian(180), 10000, 0xffffff, 0x666666, 1);
   
   background = new Bakcground();
   background.init(scene);
@@ -121,6 +123,7 @@ var setEvent = function () {
       mousedownY = event.clientY;
       isDrag = true;
     }
+    return false;
   });
 
   canvas.addEventListener('mousemove', function (event) {
@@ -130,11 +133,13 @@ var setEvent = function () {
       eventTouchMove();
     }
     mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1; 
+    mouseVector.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    return false;
   });
 
   canvas.addEventListener('mouseup', function () {
     eventTouchEnd();
+    return false;
   });
 
   canvas.addEventListener('touchstart', function (event) {
@@ -143,6 +148,7 @@ var setEvent = function () {
       mousedownY = event.touches[0].clientY;
       isDrag = true;
     }
+    return false;
   });
 
   canvas.addEventListener('touchmove', function (event) {
@@ -164,8 +170,15 @@ var render = function() {
   renderer.clear();
   raycaster.setFromCamera(mouseVector, camera.obj);
   intersects = raycaster.intersectObjects(scene.children);
-  if (intersects.length > 0) {
+  if (intersects.length > 1) {
     raycastId = intersects[0].object.id;
+    if (!isFocusPointer) {
+       isFocusPointer = true;
+       document.body.className = 'isFocus';
+    }
+  } else if (isFocusPointer) {
+    isFocusPointer = false;
+    document.body.className = '';
   }
   for (var i = 0; i < pointerArr.length; i++) {
     pointerArr[i].radRotate += get.radian(2);

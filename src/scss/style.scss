@@ -8,7 +8,10 @@ html {
 body {
   height: 100%;
   overflow: hidden;
-  font-family: 'Hammersmith One'; 
+  font-family: 'Hammersmith One';
+  &.isFocus {
+    cursor: pointer
+  }
 }
 a {
   color: #fff;
