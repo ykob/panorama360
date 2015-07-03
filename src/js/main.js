@@ -103,6 +103,7 @@ var setEvent = function () {
   var isDrag = false;
   var axis = new THREE.Vector3(0, 1, 0);
   var infoBack = document.getElementById('info-back');
+  var close = document.getElementById('info-close');
   
   var eventTouchStart = function(x, y) {
     if (!isClick) {
@@ -164,7 +165,7 @@ var setEvent = function () {
     }
   };
 
-  window.addEventListener('contextmenu', function (event) {
+  canvas.addEventListener('contextmenu', function (event) {
     event.preventDefault();
   });
 
@@ -203,6 +204,11 @@ var setEvent = function () {
   });
   
   infoBack.addEventListener('mouseup', function (event) {
+    event.preventDefault();
+    touchEndInfoBack(event.clientX, event.clientY);
+  });
+  
+  close.addEventListener('mouseup', function (event) {
     event.preventDefault();
     touchEndInfoBack(event.clientX, event.clientY);
   });
