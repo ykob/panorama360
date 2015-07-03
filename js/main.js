@@ -292,8 +292,7 @@ var setEvent = function () {
       radBase1 = rad1;
       radBase2 = rad2;
       isDrag = false;
-    }
-    if (!isDrag && isFocusPointer && !isViewingModal) {
+    } else if (isFocusPointer && !isViewingModal) {
       isViewingModal = true;
     }
     if (isClick) {
