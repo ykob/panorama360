@@ -139,6 +139,8 @@ var setEvent = function () {
   };
   
   var eventTouchEnd = function() {
+    mouseVector.x = -2;
+    mouseVector.y = -2;
     if (isDrag) {
       radBase1 = rad1;
       radBase2 = rad2;
