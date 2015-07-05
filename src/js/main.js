@@ -58,7 +58,7 @@ var init = function() {
   var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 6);
   var pointerGeometry2 = new THREE.SphereGeometry(30, 20, 20);
   var pointerMaterial = new THREE.MeshLambertMaterial({
-    color: 0xcc3333
+    color: new THREE.Color().setHSL(0, 0.8, 0.6)
   });
   var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
   pointerGeometry1.merge(pointerGeometry2, pointerMatrix);
@@ -222,6 +222,8 @@ var render = function() {
   intersects = raycaster.intersectObjects(scene.children);
   
   if (isViewingModal) {
+    mouseVector.x = -2;
+    mouseVector.y = -2;
     document.body.className = 'is-viewing-modal';
     information.className = 'information viewing-modal-id-0' + focusedPointerId;
     setTimeout(function() {
@@ -247,6 +249,8 @@ var render = function() {
     if (raycastId == pointerArr[i].mesh.id) {
       pointerArr[i].animateFocus();
       focusedPointerId = pointerArr[i].modalId;
+    } else {
+      pointerArr[i].outFocus();
     }
   };
 

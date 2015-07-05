@@ -19,7 +19,7 @@ var exports = function(){
     var y = Math.sin(rad1) * r;
     return [x, y, z];
   };
-  
+
   return Get;
 };
 
