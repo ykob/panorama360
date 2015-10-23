@@ -13,6 +13,9 @@ var exports = function(){
   Background.prototype.init = function(scene) {
     this.video.muted = true;
     this.texture = new THREE.VideoTexture(this.video);
+    this.texture.minFilter = THREE.LinearFilter;
+    this.texture.magFilter = THREE.LinearFilter;
+    this.texture.format = THREE.RGBFormat;
     this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
     this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
     this.material = new THREE.MeshBasicMaterial({
