@@ -1,8 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var exports = function(){
   var Background = function() {
-    this.r = 500;
-    this.segment = 30;
+    this.r = 180;
+    this.segment = 64;
     this.video = document.getElementById('video');
     this.textureSrc;
     this.geometry;
@@ -16,7 +16,7 @@ var exports = function(){
     this.texture.minFilter = THREE.LinearFilter;
     this.texture.magFilter = THREE.LinearFilter;
     this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
-    this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
+    //this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
     this.material = new THREE.MeshBasicMaterial({
       map: this.texture
     });
@@ -42,7 +42,7 @@ var exports = function(){
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    this.r = 300;
+    this.r = 600;
     this.obj;
   };
   
@@ -247,8 +247,8 @@ var setEvent = function () {
       }
     }
     if (isDrag) {
-      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
-      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
+      rad1 = radBase1 - get.radian((mousedownY - mousemoveY) / 4);
+      rad2 = radBase2 - get.radian((mousedownX - mousemoveX) / 4);
       if (get.degree(rad1) > 90) {
           rad1 = get.radian(90);
       }

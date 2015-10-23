@@ -95,8 +95,8 @@ var setEvent = function () {
       }
     }
     if (isDrag) {
-      rad1 = radBase1 + get.radian((mousedownY - mousemoveY) / 4);
-      rad2 = radBase2 + get.radian((mousedownX - mousemoveX) / 4);
+      rad1 = radBase1 - get.radian((mousedownY - mousemoveY) / 4);
+      rad2 = radBase2 - get.radian((mousedownX - mousemoveX) / 4);
       if (get.degree(rad1) > 90) {
           rad1 = get.radian(90);
       }
