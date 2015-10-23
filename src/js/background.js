@@ -1,6 +1,6 @@
 var exports = function(){
   var Background = function() {
-    this.r = 3000;
+    this.r = 500;
     this.segment = 30;
     this.video = document.getElementById('video');
     this.textureSrc;
