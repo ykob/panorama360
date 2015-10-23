@@ -15,7 +15,6 @@ var exports = function(){
     this.texture = new THREE.VideoTexture(this.video);
     this.texture.minFilter = THREE.LinearFilter;
     this.texture.magFilter = THREE.LinearFilter;
-    this.texture.format = THREE.RGBFormat;
     this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
     this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
     this.material = new THREE.MeshBasicMaterial({
@@ -157,19 +156,12 @@ var debounce = require('./debounce');
 var Camera = require('./camera');
 var HemiLight = require('./hemiLight');
 var Bakcground = require('./background');
-var Pointer = require('./pointer');
 
 var bodyWidth = document.body.clientWidth;
 var bodyHeight = document.body.clientHeight;
-var fps = 60;
-var frameTime = 1000 / this.fps;
-var lastTimeRender;
 var rad1Default = 0;
 var rad2Default = 0;
-var raycaster = new THREE.Raycaster();
 var mouseVector = new THREE.Vector2();
-var intersects;
-var focusedPointerId = 0;
 
 var canvas;
 var renderer;
@@ -333,57 +325,14 @@ var setEvent = function () {
 };
 
 var render = function() {
-  var raycastId = -1;
-
   renderer.clear();
-  raycaster.setFromCamera(mouseVector, camera.obj);
-  intersects = raycaster.intersectObjects(scene.children);
-  
-  if (isViewingModal) {
-    mouseVector.x = -2;
-    mouseVector.y = -2;
-    document.body.className = 'is-viewing-modal';
-    information.className = 'information viewing-modal-id-0' + focusedPointerId;
-    setTimeout(function() {
-      isViewingModal = false;
-      isViewedModal = true;
-    }, 400);
-  }
-  if (intersects.length > 1 && !isViewingModal) {
-    raycastId = intersects[0].object.id;
-  }
-  if (intersects.length > 1 && !isViewingModal && !isFocusPointer) {
-     isFocusPointer = true;
-     document.body.className = 'is-focus';
-  }
-  if (intersects.length < 2 && !isViewedModal && isFocusPointer) {
-    isFocusPointer = false;
-    document.body.className = '';
-  }
-  
-  for (var i = 0; i < pointerArr.length; i++) {
-    pointerArr[i].radRotate += get.radian(2);
-    pointerArr[i].animateStay();
-    if (raycastId == pointerArr[i].mesh.id) {
-      pointerArr[i].animateFocus();
-      focusedPointerId = pointerArr[i].modalId;
-    } else {
-      pointerArr[i].outFocus();
-    }
-  };
-
   renderer.render(scene, camera.obj);
 };
 
 var renderloop = function() {
   var now = +new Date();
   requestAnimationFrame(renderloop);
-
-  if (now - lastTimeRender < frameTime) {
-    return;
-  }
   render();
-  lastTimeRender = +new Date();
 };
 
 var resizeRenderer = function() {
@@ -395,96 +344,4 @@ var resizeRenderer = function() {
 
 init();
 
-},{"./background":1,"./camera":2,"./debounce":3,"./get":4,"./hemiLight":5,"./pointer":7}],7:[function(require,module,exports){
-var Get = require('./get');
-var get = new Get();
-
-var exports = function(){
-  var Pointer = function() {
-    this.r = 0;
-    this.h = 0;
-    this.s = 0.8;
-    this.l = 0.6;
-    this.rad1 = 0;
-    this.rad2 = 0;
-    this.radRotate = 0;
-    this.modalId = 0;
-    this.geometry;
-    this.material;
-    this.mesh;
-    this.cd = 0.5;
-    this.k  = 0.05;
-    this.colorR  = 0;
-    this.colorRBase = this.colorR;
-    this.colorG  = 0;
-    this.colorGBase = this.colorG;
-    this.colorB  = 0;
-    this.colorBBase = this.colorB;
-    this.ar = 0;
-    this.ag = 0;
-    this.ab = 0;
-    this.vr = 0;
-    this.vg = 0;
-    this.vb = 0;
-  };
-
-  Pointer.prototype.init = function(scene, geometry, material, radian, radius) {
-    this.geometry = geometry;
-    this.material = new THREE.MeshLambertMaterial({
-      color: new THREE.Color(0.2, 0.9, 0.8)
-    });
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.r = radius;
-    this.rad1 = 0;
-    this.rad2 = radian;
-    this.setPosition();
-    scene.add(this.mesh);
-  };
-  
-  Pointer.prototype.changeColor = function() {
-    this.ar = (this.colorRBase - this.colorR) * this.k;
-    this.ag = (this.colorGBase - this.colorG) * this.k;
-    this.ab = (this.colorBBase - this.colorB) * this.k;
-    this.ar -= this.cd * this.vr;
-    this.ag -= this.cd * this.vg;
-    this.ab -= this.cd * this.vb;
-    this.vr += this.ar;
-    this.vg += this.ag;
-    this.vb += this.ab;
-    this.colorR += this.vr;
-    this.colorG += this.vg;
-    this.colorB += this.vb;
-    
-    this.material.color.setRGB(this.colorR / 1000, this.colorG / 1000, this.colorB / 1000);
-  };
-  
-  Pointer.prototype.setPosition = function() {
-    var points = get.pointSphere(this.rad1, this.rad2, this.r);
-    this.mesh.position.set(points[0], points[1], points[2]);
-  };
-
-  Pointer.prototype.animateStay = function() {
-    this.changeColor();
-    this.mesh.rotation.y = this.radRotate;
-    this.mesh.position.y = Math.sin(this.radRotate) * 20 - 50;
-  };
-
-  Pointer.prototype.animateFocus = function() {
-    this.colorRBase = 200;
-    this.colorGBase = 800;
-    this.colorBBase = 800;
-    this.radRotate += get.radian(4);
-  };
-
-  Pointer.prototype.outFocus = function() {
-    this.colorRBase = 800;
-    this.colorGBase = 200;
-    this.colorBBase = 200;
-  };
-
-  return Pointer;
-};
-
-module.exports = exports();
-
-},{"./get":4}]},{},[6]);
+},{"./background":1,"./camera":2,"./debounce":3,"./get":4,"./hemiLight":5}]},{},[6]);

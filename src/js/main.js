@@ -4,19 +4,12 @@ var debounce = require('./debounce');
 var Camera = require('./camera');
 var HemiLight = require('./hemiLight');
 var Bakcground = require('./background');
-var Pointer = require('./pointer');
 
 var bodyWidth = document.body.clientWidth;
 var bodyHeight = document.body.clientHeight;
-var fps = 60;
-var frameTime = 1000 / this.fps;
-var lastTimeRender;
 var rad1Default = 0;
 var rad2Default = 0;
-var raycaster = new THREE.Raycaster();
 var mouseVector = new THREE.Vector2();
-var intersects;
-var focusedPointerId = 0;
 
 var canvas;
 var renderer;
@@ -180,57 +173,14 @@ var setEvent = function () {
 };
 
 var render = function() {
-  var raycastId = -1;
-
   renderer.clear();
-  raycaster.setFromCamera(mouseVector, camera.obj);
-  intersects = raycaster.intersectObjects(scene.children);
-  
-  if (isViewingModal) {
-    mouseVector.x = -2;
-    mouseVector.y = -2;
-    document.body.className = 'is-viewing-modal';
-    information.className = 'information viewing-modal-id-0' + focusedPointerId;
-    setTimeout(function() {
-      isViewingModal = false;
-      isViewedModal = true;
-    }, 400);
-  }
-  if (intersects.length > 1 && !isViewingModal) {
-    raycastId = intersects[0].object.id;
-  }
-  if (intersects.length > 1 && !isViewingModal && !isFocusPointer) {
-     isFocusPointer = true;
-     document.body.className = 'is-focus';
-  }
-  if (intersects.length < 2 && !isViewedModal && isFocusPointer) {
-    isFocusPointer = false;
-    document.body.className = '';
-  }
-  
-  for (var i = 0; i < pointerArr.length; i++) {
-    pointerArr[i].radRotate += get.radian(2);
-    pointerArr[i].animateStay();
-    if (raycastId == pointerArr[i].mesh.id) {
-      pointerArr[i].animateFocus();
-      focusedPointerId = pointerArr[i].modalId;
-    } else {
-      pointerArr[i].outFocus();
-    }
-  };
-
   renderer.render(scene, camera.obj);
 };
 
 var renderloop = function() {
   var now = +new Date();
   requestAnimationFrame(renderloop);
-
-  if (now - lastTimeRender < frameTime) {
-    return;
-  }
   render();
-  lastTimeRender = +new Date();
 };
 
 var resizeRenderer = function() {
