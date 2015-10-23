@@ -48,21 +48,6 @@ var initThree = function() {
 };
 
 var init = function() {
-  var pointerValArr = [
-    [0, 1200],
-    [90, 1500],
-    [120, 1000],
-    [200, 1700],
-    [270, 1200]
-  ];
-  var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 6);
-  var pointerGeometry2 = new THREE.SphereGeometry(30, 20, 20);
-  var pointerMaterial = new THREE.MeshLambertMaterial({
-    color: new THREE.Color().setHSL(0, 0.8, 0.6)
-  });
-  var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
-  pointerGeometry1.merge(pointerGeometry2, pointerMatrix);
-  
   initThree();
   
   camera = new Camera();
@@ -73,15 +58,7 @@ var init = function() {
   
   background = new Bakcground();
   background.init(scene);
-  
-  for (var i = 0; i < pointerValArr.length; i++) {
-    var radian = get.radian(pointerValArr[i][0]);
-    var radius = pointerValArr[i][1];
-    pointerArr[i] = new Pointer();
-    pointerArr[i].init(scene, pointerGeometry1, pointerMaterial, radian, radius);
-    pointerArr[i].radRotate = get.radian(get.randomInt(0, 360));
-    pointerArr[i].modalId = i + 1;
-  }
+
   
   setEvent();
   renderloop();
@@ -102,8 +79,6 @@ var setEvent = function () {
   var isClick = false;
   var isDrag = false;
   var axis = new THREE.Vector3(0, 1, 0);
-  var infoBack = document.getElementById('info-back');
-  var close = document.getElementById('info-close');
   
   var eventTouchStart = function(x, y) {
     if (!isClick) {
@@ -201,16 +176,6 @@ var setEvent = function () {
   canvas.addEventListener('touchend', function (event) {
     event.preventDefault();
     eventTouchEnd();
-  });
-  
-  infoBack.addEventListener('mouseup', function (event) {
-    event.preventDefault();
-    touchEndInfoBack(event.clientX, event.clientY);
-  });
-  
-  close.addEventListener('mouseup', function (event) {
-    event.preventDefault();
-    touchEndInfoBack(event.clientX, event.clientY);
   });
 };
 

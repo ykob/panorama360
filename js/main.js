@@ -1,27 +1,28 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var exports = function(){
-  var Globe = function() {
-    this.r = 2000;
+  var Background = function() {
+    this.r = 3000;
     this.segment = 30;
+    this.video = document.getElementById('video');
     this.textureSrc;
-    
     this.geometry;
     this.material;
     this.mesh;
   };
 
-  Globe.prototype.init = function(scene) {
-    this.textureSrc = new THREE.ImageUtils.loadTexture('img/360.jpg');
+  Background.prototype.init = function(scene) {
+    this.video.muted = true;
+    this.texture = new THREE.VideoTexture(this.video);
     this.geometry = new THREE.SphereGeometry(this.r, this.segment, this.segment);
     this.geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
     this.material = new THREE.MeshBasicMaterial({
-      map: this.textureSrc
+      map: this.texture
     });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     scene.add(this.mesh);
   };
 
-  return Globe;
+  return Background;
 };
 
 module.exports = exports();
@@ -39,7 +40,7 @@ var exports = function(){
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    this.r = 800;
+    this.r = 1500;
     this.obj;
   };
   
@@ -197,21 +198,6 @@ var initThree = function() {
 };
 
 var init = function() {
-  var pointerValArr = [
-    [0, 1200],
-    [90, 1500],
-    [120, 1000],
-    [200, 1700],
-    [270, 1200]
-  ];
-  var pointerGeometry1 = new THREE.CylinderGeometry(40, 0, 160, 6);
-  var pointerGeometry2 = new THREE.SphereGeometry(30, 20, 20);
-  var pointerMaterial = new THREE.MeshLambertMaterial({
-    color: new THREE.Color().setHSL(0, 0.8, 0.6)
-  });
-  var pointerMatrix = new THREE.Matrix4().makeTranslation(0, 130, 0);
-  pointerGeometry1.merge(pointerGeometry2, pointerMatrix);
-  
   initThree();
   
   camera = new Camera();
@@ -222,15 +208,7 @@ var init = function() {
   
   background = new Bakcground();
   background.init(scene);
-  
-  for (var i = 0; i < pointerValArr.length; i++) {
-    var radian = get.radian(pointerValArr[i][0]);
-    var radius = pointerValArr[i][1];
-    pointerArr[i] = new Pointer();
-    pointerArr[i].init(scene, pointerGeometry1, pointerMaterial, radian, radius);
-    pointerArr[i].radRotate = get.radian(get.randomInt(0, 360));
-    pointerArr[i].modalId = i + 1;
-  }
+
   
   setEvent();
   renderloop();
@@ -251,8 +229,6 @@ var setEvent = function () {
   var isClick = false;
   var isDrag = false;
   var axis = new THREE.Vector3(0, 1, 0);
-  var infoBack = document.getElementById('info-back');
-  var close = document.getElementById('info-close');
   
   var eventTouchStart = function(x, y) {
     if (!isClick) {
@@ -350,16 +326,6 @@ var setEvent = function () {
   canvas.addEventListener('touchend', function (event) {
     event.preventDefault();
     eventTouchEnd();
-  });
-  
-  infoBack.addEventListener('mouseup', function (event) {
-    event.preventDefault();
-    touchEndInfoBack(event.clientX, event.clientY);
-  });
-  
-  close.addEventListener('mouseup', function (event) {
-    event.preventDefault();
-    touchEndInfoBack(event.clientX, event.clientY);
   });
 };
 

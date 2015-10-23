@@ -10,7 +10,7 @@ var exports = function(){
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    this.r = 800;
+    this.r = 1500;
     this.obj;
   };
   
